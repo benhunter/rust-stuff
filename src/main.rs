@@ -29,8 +29,24 @@ fn main() {
         let r3 = &mut s3;
         println!("r3: {}", r3)
     } // r3 goes out of scope here
-    let r4 = &mut s3;
-    println!("r4: {}", r4)
+    let r4 = &mut s3;  // no race
+    println!("r4: {}", r4);
+
+    // Immutable references cannot exist while mutable references exist
+    let mut s = String::from("hello");
+    let r1 = &s; // no problem
+    let r2 = &s; // no problem
+    let r3 = &mut s; // BIG problem
+    // println!("{}, {}, and {}", r1, r2, r3); // error[E0502]: cannot borrow `s` as mutable because it is also borrowed as immutable
+
+    // A reference's scope starts where it is introduced and ends after the last time it is used
+    let mut s = String::from("hello");
+    let r1 = &s;
+    let r2 = &s;
+    println!("{} and {}", r1, r2);
+    // r1 and r2 are no longer used after this point
+    let r3 = &mut s; // no problem
+    println!("{}", r3);
 }
 
 fn calculate_length(s: &String) -> usize {
