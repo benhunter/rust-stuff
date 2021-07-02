@@ -1,3 +1,4 @@
+#![allow(unused)]
 fn main() {
     println!("Hello, rust!");
 
@@ -81,8 +82,9 @@ fn main() {
     // -references must always be valid
 
     // 4.3 Slice type, slices
-    // another data type that does not have ownership
+    // Slice: another data type that does not have ownership
     // refer to a contiguous sequence of elements in a collection rather than the whole collection.
+    // Slice is stored as a pointer to the starting element of the slice and a length.
 
     // Example problem: write a function that takes a string and returns the first word
     fn first_word_index(s: &String) -> usize {
@@ -118,12 +120,25 @@ fn main() {
     test_first_word_slice();
 
 
-    // String Slices
-    let s = String::from("hello world");
+    // String Slices using range syntax.
+    let mut s = String::from("hello world");
     let hello = &s[0..5];
     let world = &s[6..11];
     println!("{}", hello);
     println!("{}", world);
+
+    // Slices with range syntax can omit index:
+    let hello = &s[..5];
+    let world = &s[6..];
+    let hello_world = &s[..];
+    // s.clear(); // Mutable reference (borrow) cannot be used before the immutable references (slices here)
+    // go out of scope.
+    println!("{} {} {}", hello, world, hello_world);
+
+    // String literals are Slices! woah
+    let s = "Hello, world!";
+    // first_word_improved(&s);
+    // test_first_word_improved();
 }
 
 fn calculate_length(s: &String) -> usize {
@@ -153,3 +168,23 @@ fn no_dangle() -> String {
     let s = String::from("no_dangle");
     s
 }
+
+// A more experienced Rustacean would write:
+// because it allows &String and &str values to be passed into the function.
+fn first_word_improved(s: &str) -> &str {
+    let bytes = s.as_bytes();
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return &s[0..i];
+        }
+    }
+    &s
+}
+
+#[test]
+fn test_first_word_improved() {
+    let my_string = String::from("hello world");
+    let word = first_word_improved(&my_string);
+    assert_eq!(word, "hello");
+}
+
